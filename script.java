@@ -1,75 +1,25 @@
-<?php
-// spent_bill_gates_money.php - نسخه PHP با 50 آیتم واقعی
-session_start();
+const totalEl=document.getElementById('total');
+const spentList=document.getElementById('spentList');
+const items=document.querySelectorAll('.item');
+let total=parseInt(totalEl.innerText.replace(/\$|,/g,''));
 
-$DEFAULT_TOTAL = 100000000000;
-if (!isset($_SESSION['total'])) {
-    $_SESSION['total'] = $DEFAULT_TOTAL;
-    $_SESSION['spent_list'] = [];
-}
-
-$CATEGORIES = [
-    ['id'=>'tech','name'=>'تکنولوژی','min'=>100000,'max'=>50000000,'icon'=>'💻'],
-    ['id'=>'charity','name'=>'خیریه','min'=>1000,'max'=>10000000,'icon'=>'🤝'],
-    ['id'=>'realestate','name'=>'خرید ملک','min'=>1000000,'max'=>200000000,'icon'=>'🏠'],
-    ['id'=>'yacht','name'=>'قایق تفریحی','min'=>5000000,'max'=>300000000,'icon'=>'🛥️'],
-    ['id'=>'food','name'=>'رستوران','min'=>10,'max'=>5000,'icon'=>'🍔'],
-];
-
-// 50 آیتم واقعی
-$items = [
-    ["name"=>"آیفون ۱۵ پرو", "price"=>65000],
-    ["name"=>"گلکسی S24 اولترا", "price"=>72000],
-    ["name"=>"ایرپاد پرو 2", "price"=>9000],
-    ["name"=>"هدفون سونی XM5", "price"=>12000],
-    ["name"=>"پلی‌استیشن 5", "price"=>25000],
-    ["name"=>"ایکس‌باکس سری X", "price"=>22000],
-    ["name"=>"نینتندو سوییچ", "price"=>15000],
-    ["name"=>"لپ‌تاپ گیمینگ MSI", "price"=>45000],
-    ["name"=>"مک‌بوک پرو M3", "price"=>78000],
-    ["name"=>"مانیتور 4K سامسونگ", "price"=>18000],
-    ["name"=>"کیبورد مکانیکال", "price"=>4000],
-    ["name"=>"ماوس گیمینگ", "price"=>3000],
-    ["name"=>"صندلی گیمینگ", "price"=>8000],
-    ["name"=>"کارت گرافیک RTX 4090", "price"=>90000],
-    ["name"=>"پرینتر لیزری", "price"=>5000],
-    ["name"=>"اسکوتر برقی", "price"=>16000],
-    ["name"=>"دوچرخه کوهستان", "price"=>14000],
-    ["name"=>"تلویزیون 75 اینچ", "price"=>60000],
-    ["name"=>"پرچم گیمینگ RGB", "price"=>2000],
-    ["name"=>"پاوربانک 30000", "price"=>2500],
-    ["name"=>"کمپیوتر کامل گیمینگ", "price"=>70000],
-    ["name"=>"میز گیمینگ", "price"=>9000],
-    ["name"=>"کولر گازی", "price"=>15000],
-    ["name"=>"یخچال", "price"=>18000],
-    ["name"=>"ماشین لباسشویی", "price"=>13000],
-    ["name"=>"مایکروویو", "price"=>4000],
-    ["name"=>"ساعت هوشمند", "price"=>7000],
-    ["name"=>"دوربین حرفه‌ای", "price"=>35000],
-    ["name"=>"پهپاد DJI", "price"=>28000],
-    ["name"=>"سرور خانگی", "price"=>30000],
-    ["name"=>"کیس RGB", "price"=>6000],
-    ["name"=>"موس پد XXL", "price"=>1000],
-    ["name"=>"ماشین کنترلی", "price"=>7000],
-    ["name"=>"لباس ورزشی", "price"=>2000],
-    ["name"=>"کتونی نایک", "price"=>3500],
-    ["name"=>"کیف مدرسه", "price"=>1500],
-    ["name"=>"کتابخانه", "price"=>5000],
-    ["name"=>"گلدان بزرگ", "price"=>800],
-    ["name"=>"ساعت دیواری", "price"=>600],
-    ["name"=>"آباژور", "price"=>900],
-    ["name"=>"پرده جدید", "price"=>1200],
-    ["name"=>"قهوه‌ساز", "price"=>3000],
-    ["name"=>"چای‌ساز", "price"=>2000],
-    ["name"=>"هارد اکسترنال", "price"=>2500],
-    ["name"=>"SSD پرسرعت", "price"=>4000],
-    ["name"=>"میکروفون استریم", "price"=>3500],
-    ["name"=>"وب‌کم HD", "price"=>2000],
-    ["name"=>"پرژکتور خانگی", "price"=>6000]
-];
-
-function fmt($n) {
-    return '$' . number_format($n, 0, '.', ',');
-}
-
-?>
+items.forEach(item=>{
+  item.onclick=()=>{
+    const price=parseInt(item.dataset.price);
+    if(total>=price){
+      total-=price;
+      totalEl.innerText='$'+total.toLocaleString();
+      const div=document.createElement('div');
+      div.className='spent-card';
+      div.innerHTML=`<span>${item.innerText}</span><b>$${price.toLocaleString()}</b>`;
+      spentList.prepend(div);
+      const f=document.createElement('div');
+      f.className='money-float';
+      f.innerText='-$'+price.toLocaleString();
+      f.style.left=Math.random()*80+'vw';
+      f.style.top='70vh';
+      document.body.appendChild(f);
+      setTimeout(()=>f.remove(),900);
+    } else alert('پول کافی نیست!');
+  }
+});
