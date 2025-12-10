@@ -1,211 +1,87 @@
 <?php
-// Enhanced "Spend Bill Gates Money" — PHP + Modern JS/CSS
 session_start();
-header('Content-Type: text/html; charset=utf-8');
 
 $DEFAULT_TOTAL = 100000000000;
-$CATEGORIES = [
-    ['id'=>'tech','name'=>'تکنولوژی','min'=>100000,'max'=>50000000,'icon'=>'💻'],
-    ['id'=>'charity','name'=>'خیریه','min'=>1000,'max'=>10000000,'icon'=>'🤝'],
-    ['id'=>'realestate','name'=>'خرید ملک','min'=>1000000,'max'=>200000000,'icon'=>'🏠'],
-    ['id'=>'yacht','name'=>'قایق تفریحی','min'=>5000000,'max'=>300000000,'icon'=>'🛥️'],
-    ['id'=>'food','name'=>'رستوران','min'=>10,'max'=>5000,'icon'=>'🍔'],
-    ['id'=>'weird','name'=>'چیز عجیب','min'=>1,'max'=>1000000,'icon'=>'🧸'],
-    ['id'=>'plane','name'=>'هواپیما شخصی','min'=>10000000,'max'=>300000000,'icon'=>'✈️'],
-    ['id'=>'island','name'=>'جزیره خصوصی','min'=>20000000,'max'=>500000000,'icon'=>'🏝️'],
-    ['id'=>'crypto','name'=>'سرمایه‌گذاری کریپتو','min'=>1000,'max'=>20000000,'icon'=>'🪙'],
-    ['id'=>'gold','name'=>'خرید طلا و جواهر','min'=>5000,'max'=>10000000,'icon'=>'💎'],
-];
-
 if (!isset($_SESSION['total'])) {
     $_SESSION['total'] = $DEFAULT_TOTAL;
     $_SESSION['spent_list'] = [];
 }
 
-// AJAX handlers
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    if ($action === 'spend') {
-        $cat_id = $_POST['category'] ?? '';
-        $cat = null;
-        foreach ($CATEGORIES as $c) if ($c['id'] === $cat_id) $cat = $c;
-        if (!$cat) exit(json_encode(['ok'=>false]));
+$items = [
+    ["name"=>"آیفون ۱۵ پرو", "price"=>65000],
+    ["name"=>"گلکسی S24 اولترا", "price"=>72000],
+    ["name"=>"ایرپاد پرو 2", "price"=>9000],
+    ["name"=>"هدفون سونی XM5", "price"=>12000],
+    ["name"=>"پلی‌استیشن 5", "price"=>25000],
+    ["name"=>"ایکس‌باکس سری X", "price"=>22000],
+    ["name"=>"نینتندو سوییچ", "price"=>15000],
+    ["name"=>"لپ‌تاپ گیمینگ MSI", "price"=>45000],
+    ["name"=>"مک‌بوک پرو M3", "price"=>78000],
+    ["name"=>"مانیتور 4K سامسونگ", "price"=>18000],
+    ["name"=>"کیبورد مکانیکال", "price"=>4000],
+    ["name"=>"ماوس گیمینگ", "price"=>3000],
+    ["name"=>"صندلی گیمینگ", "price"=>8000],
+    ["name"=>"کارت گرافیک RTX 4090", "price"=>90000],
+    ["name"=>"پرینتر لیزری", "price"=>5000],
+    ["name"=>"اسکوتر برقی", "price"=>16000],
+    ["name"=>"دوچرخه کوهستان", "price"=>14000],
+    ["name"=>"تلویزیون 75 اینچ", "price"=>60000],
+    ["name"=>"پرچم گیمینگ RGB", "price"=>2000],
+    ["name"=>"پاوربانک 30000", "price"=>2500],
+    ["name"=>"کمپیوتر کامل گیمینگ", "price"=>70000],
+    ["name"=>"میز گیمینگ", "price"=>9000],
+    ["name"=>"کولر گازی", "price"=>15000],
+    ["name"=>"یخچال", "price"=>18000],
+    ["name"=>"ماشین لباسشویی", "price"=>13000],
+    ["name"=>"مایکروویو", "price"=>4000],
+    ["name"=>"ساعت هوشمند", "price"=>7000],
+    ["name"=>"دوربین حرفه‌ای", "price"=>35000],
+    ["name"=>"پهپاد DJI", "price"=>28000],
+    ["name"=>"سرور خانگی", "price"=>30000],
+    ["name"=>"کیس RGB", "price"=>6000],
+    ["name"=>"موس پد XXL", "price"=>1000],
+    ["name"=>"ماشین کنترلی", "price"=>7000],
+    ["name"=>"لباس ورزشی", "price"=>2000],
+    ["name"=>"کتونی نایک", "price"=>3500],
+    ["name"=>"کیف مدرسه", "price"=>1500],
+    ["name"=>"کتابخانه", "price"=>5000],
+    ["name"=>"گلدان بزرگ", "price"=>800],
+    ["name"=>"ساعت دیواری", "price"=>600],
+    ["name"=>"آباژور", "price"=>900],
+    ["name"=>"پرده جدید", "price"=>1200],
+    ["name"=>"قهوه‌ساز", "price"=>3000],
+    ["name"=>"چای‌ساز", "price"=>2000],
+    ["name"=>"هارد اکسترنال", "price"=>2500],
+    ["name"=>"SSD پرسرعت", "price"=>4000],
+    ["name"=>"میکروفون استریم", "price"=>3500],
+    ["name"=>"وب‌کم HD", "price"=>2000],
+    ["name"=>"پرژکتور خانگی", "price"=>6000]
+];
 
-        $remaining = $_SESSION['total'];
-        $min = $cat['min'];
-        $max = min($cat['max'], $remaining);
-        if ($max < $min) $min = max(1, intval($max/2));
-
-        $amount = mt_rand($min, $max);
-        $_SESSION['total'] -= $amount;
-        $entry = ['category'=>$cat['name'],'icon'=>$cat['icon'],'amount'=>$amount,'time'=>time()];
-        array_unshift($_SESSION['spent_list'], $entry);
-
-        exit(json_encode(['ok'=>true,'amount'=>$amount,'total'=>$_SESSION['total'],'entry'=>$entry]));
-    }
-
-    if ($action==='reset'){
-        $_SESSION['total']=$DEFAULT_TOTAL;
-        $_SESSION['spent_list']=[];
-        exit(json_encode(['ok'=>true,'total'=>$_SESSION['total']]));
-    }
-
-    if ($action==='set_total'){
-        $t = preg_replace('/[^0-9]/','', $_POST['total']);
-        $_SESSION['total'] = intval($t);
-        $_SESSION['spent_list']=[];
-        exit(json_encode(['ok'=>true,'total'=>$_SESSION['total']]));
-    }
-}
-
-function fmt($n){ return '$'.number_format($n); }
+function fmt($n){ return '$'.number_format($n,0,'.',','); }
 ?>
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>خرج کردن پول بیل گیتس — نسخه قشنگ</title>
-<style>
-:root{
-  --bg:#0d1117; --card:#161b22; --accent:#43c3ff; --text:#e6eef6;
-}
-body{
-  background:var(--bg); color:var(--text);
-  font-family:"Vazirmatn", sans-serif; margin:0;
-}
-.container{max-width:1100px; margin:auto; padding:20px;}
-header h1{
-  font-size:26px; font-weight:800; color:#fff;
-  text-shadow:0 0 12px rgba(67,195,255,0.4);
-}
-.card{
-  background:var(--card); border-radius:15px; padding:20px;
-  box-shadow:0 0 20px rgba(0,0,0,0.4);
-  backdrop-filter:blur(8px);
-}
-.big{font-size:32px; font-weight:900; color:var(--accent);}
-.grid{display:grid; grid-template-columns:2fr 1fr; gap:20px; margin-top:20px;}
-.cat{
-  background:#1c222b; padding:14px; border-radius:14px;
-  transition:0.2s; cursor:pointer; width:155px; text-align:center;
-  border:1px solid transparent;
-}
-.cat:hover{
-  transform:translateY(-6px) scale(1.03);
-  border-color:var(--accent);
-  box-shadow:0 0 20px rgba(67,195,255,0.25);
-}
-.cat-icon{font-size:26px;}
-button{
-  background:var(--accent); border:0; padding:10px 16px;
-  border-radius:10px; font-weight:700; cursor:pointer;
-}
-#spentList{
-  max-height:400px; overflow-y:auto;
-}
-.spent-card{
-  background:#13171f; padding:10px 12px; border-radius:10px;
-  margin-bottom:8px; display:flex; justify-content:space-between;
-  animation:fadeIn 0.25s ease;
-}
-@keyframes fadeIn{from{opacity:0; transform:translateY(5px);}to{opacity:1;}}
-.money-float{
-  position:fixed; font-size:22px; pointer-events:none;
-  animation:floatUp 0.9s ease forwards;
-}
-@keyframes floatUp{
-  from{opacity:1; transform:translateY(0);} to{opacity:0; transform:translateY(-80px);} }
-</style>
+<title>خرج کردن پول بیل گیتس</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
-<header><h1>💸 خرج کردن پول بیل گیتس — نسخه ارتقاء یافته</h1></header>
-
+<h1>💸 خرج کردن پول بیل گیتس</h1>
+<div>موجودی: <span id="total"><?php echo fmt($_SESSION['total']); ?></span></div>
 <div class="grid">
-<main class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-            <div>موجودی فعلی:</div>
-            <div class="big" id="total"><?php echo fmt($_SESSION['total']); ?></div>
-        </div>
-        <div>
-            <input id="setTotalInput" type="number" placeholder="تنظیم موجودی" style="padding:8px; border-radius:8px;">
-            <button id="setTotalBtn">OK</button>
-            <button id="resetBtn" style="background:#ff5e5e;">ریست</button>
-        </div>
-    </div>
-
-    <h3>دسته‌ها</h3>
-    <div style="display:flex; flex-wrap:wrap; gap:12px;">
-        <?php foreach($CATEGORIES as $c): ?>
-        <div class="cat" data-id="<?php echo $c['id']; ?>">
-            <div class="cat-icon"><?php echo $c['icon']; ?></div>
-            <div><?php echo $c['name']; ?></div>
-            <div style="font-size:12px; opacity:0.7;">
-                <?php echo fmt($c['min']); ?> تا <?php echo fmt($c['max']); ?>
-            </div>
-        </div>
-        <?php endforeach; ?>
-    </div>
-
-    <h3>آخرین خرج‌ها</h3>
-    <div id="spentList">
-        <?php foreach($_SESSION['spent_list'] as $e): ?>
-            <div class="spent-card">
-                <div><?php echo $e['icon'].' '.$e['category']; ?></div>
-                <div><?php echo fmt($e['amount']); ?></div>
-            </div>
-        <?php endforeach; ?>
-    </div>
+<main class="card" id="items">
+<?php foreach($items as $i): ?>
+  <div class="item" data-price="<?php echo $i['price']; ?>"><?php echo $i['name'].' - '.fmt($i['price']); ?></div>
+<?php endforeach; ?>
 </main>
-
 <aside class="card">
-    <button id="autoSpendBtn">خرج خودکار ×10</button>
+<h3>خرج‌ها</h3>
+<div id="spentList"></div>
 </aside>
-
 </div></div>
-
-<script>
-function qs(s){return document.querySelector(s)}
-function post(data){return fetch('',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(data)}).then(r=>r.json())}
-function fmt(n){return '$'+Number(n).toLocaleString()}
-
-// Spend
-for(const c of document.querySelectorAll('.cat')){
-  c.onclick=()=>{
-    const rect=c.getBoundingClientRect();
-    post({action:'spend',category:c.dataset.id}).then(res=>{
-      if(!res.ok) return;
-
-      // float animation
-      const f=document.createElement('div');
-      f.className='money-float';
-      f.style.left=(rect.left+rect.width/2)+'px';
-      f.style.top=(rect.top)+'px';
-      f.textContent='-'+fmt(res.amount);
-      document.body.appendChild(f);
-      setTimeout(()=>f.remove(),900);
-
-      qs('#total').textContent=fmt(res.total);
-      const s=qs('#spentList');
-      const el=document.createElement('div');
-      el.className='spent-card';
-      el.innerHTML=`<div>${res.entry.icon} ${res.entry.category}</div><div>${fmt(res.entry.amount)}</div>`;
-      s.prepend(el);
-    })
-  }
-}
-
-qs('#resetBtn').onclick=()=>{post({action:'reset'}).then(r=>{qs('#total').textContent=fmt(r.total); qs('#spentList').innerHTML=''})}
-qs('#setTotalBtn').onclick=()=>{post({action:'set_total',total:qs('#setTotalInput').value}).then(r=>{qs('#total').textContent=fmt(r.total); qs('#spentList').innerHTML=''})}
-qs('#autoSpendBtn').onclick=async()=>{
-  for(let i=0;i<10;i++){
-    const cats=[...document.querySelectorAll('.cat')];
-    cats[Math.floor(Math.random()*cats.length)].click();
-    await new Promise(r=>setTimeout(r,250));
-  }
-}
-</script>
+<script src="script.js"></script>
 </body>
 </html>
