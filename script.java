@@ -1,55 +1,22 @@
-// External JS for Spent Bill Gates Money
-let total = 5000000000;
-let remaining = total;
-let spentItems = [];
+<?php
+// spent_bill_gates_money.php - نسخه PHP با 50 آیتم واقعی
+session_start();
 
-function buyItem(name, price) {
-  if (remaining >= price) {
-    remaining -= price;
-    spentItems.push({ name, price });
-    updateUI();
-    moneyFloat(price);
-  }
+$DEFAULT_TOTAL = 100000000000;
+if (!isset($_SESSION['total'])) {
+    $_SESSION['total'] = $DEFAULT_TOTAL;
+    $_SESSION['spent_list'] = [];
 }
 
-function updateUI() {
-  document.getElementById("remaining").innerText = remaining.toLocaleString();
-  let list = document.getElementById("spentList");
-  list.innerHTML = "";
+$CATEGORIES = [
+    ['id'=>'tech','name'=>'تکنولوژی','min'=>100000,'max'=>50000000,'icon'=>'💻'],
+    ['id'=>'charity','name'=>'خیریه','min'=>1000,'max'=>10000000,'icon'=>'🤝'],
+    ['id'=>'realestate','name'=>'خرید ملک','min'=>1000000,'max'=>200000000,'icon'=>'🏠'],
+    ['id'=>'yacht','name'=>'قایق تفریحی','min'=>5000000,'max'=>300000000,'icon'=>'🛥️'],
+    ['id'=>'food','name'=>'رستوران','min'=>10,'max'=>5000,'icon'=>'🍔'],
+];
 
-  spentItems.forEach(item => {
-    let div = document.createElement("div");
-    div.className = "spent-card";
-    div.innerHTML = `<span>${item.name}</span><b>${item.price.toLocaleString()}$</b>`;
-    list.appendChild(div);
-  });
-}
-
-function moneyFloat(amount) {
-  let float = document.createElement("div");
-  float.className = "money-float";
-  float.innerText = `-${amount}$`;
-  float.style.left = (Math.random() * 80 + 10) + "vw";
-  float.style.top = "70vh";
-  document.body.appendChild(float);
-
-  setTimeout(() => float.remove(), 900);
-}
-
-window.onload = updateUI;
-
-// Auto-generated 50 items
-$items = [];
-for ($i = 1; $i <= 50; $i++) {
-    $items[] = [
-        "name" => "آیتم شماره $i",
-        "price" => rand(50, 500000000)
-    ];
-}
-
-
-
-// 50 real items
+// 50 آیتم واقعی
 $items = [
     ["name"=>"آیفون ۱۵ پرو", "price"=>65000],
     ["name"=>"گلکسی S24 اولترا", "price"=>72000],
@@ -100,3 +67,9 @@ $items = [
     ["name"=>"وب‌کم HD", "price"=>2000],
     ["name"=>"پرژکتور خانگی", "price"=>6000]
 ];
+
+function fmt($n) {
+    return '$' . number_format($n, 0, '.', ',');
+}
+
+?>
