@@ -1,25 +1,55 @@
-const totalEl=document.getElementById('total');
-const spentList=document.getElementById('spentList');
-const items=document.querySelectorAll('.item');
-let total=parseInt(totalEl.innerText.replace(/\$|,/g,''));
-
-items.forEach(item=>{
-  item.onclick=()=>{
-    const price=parseInt(item.dataset.price);
-    if(total>=price){
-      total-=price;
-      totalEl.innerText='$'+total.toLocaleString();
-      const div=document.createElement('div');
-      div.className='spent-card';
-      div.innerHTML=`<span>${item.innerText}</span><b>$${price.toLocaleString()}</b>`;
-      spentList.prepend(div);
-      const f=document.createElement('div');
-      f.className='money-float';
-      f.innerText='-$'+price.toLocaleString();
-      f.style.left=Math.random()*80+'vw';
-      f.style.top='70vh';
-      document.body.appendChild(f);
-      setTimeout(()=>f.remove(),900);
-    } else alert('پول کافی نیست!');
-  }
-});
+body{
+  font-family:"Vazirmatn",sans-serif;
+  background:#0d1117;
+  color:#e6eef6;
+  margin:0;
+}
+.container{
+  max-width:1000px;
+  margin:auto;
+  padding:20px;
+}
+h1{
+  color:#43c3ff;
+  text-align:center;
+}
+.grid{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:20px;
+}
+.card{
+  background:#161b22;
+  padding:20px;
+  border-radius:15px;
+}
+.item{
+  padding:10px;
+  margin:6px;
+  background:#1c222b;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.2s;
+}
+.item:hover{
+  transform:scale(1.03);
+  border:1px solid #43c3ff;
+}
+.spent-card{
+  background:#13171f;
+  padding:10px;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  border-radius:10px;
+}
+.money-float{
+  position:fixed;
+  font-size:22px;
+  pointer-events:none;
+  animation:floatUp 0.9s ease forwards;
+}
+@keyframes floatUp{
+  from{opacity:1; transform:translateY(0);}
+  to{opacity:0; transform:translateY(-80px);}
+}
